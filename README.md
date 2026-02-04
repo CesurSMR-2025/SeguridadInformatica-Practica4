@@ -191,4 +191,4 @@ Si uno o dos de los discos fallan, los datos seguirán estando disponibles graci
 ### Entrega
 Debereis entregar un documento PDF con capturas de pantalla con las salidas de los siguientes comandos:
 
-- `proc/mdstat` después de crear cada RAID.
+- `cat proc/mdstat` después de crear cada RAID. Se deberian de ver cada una de las configuraciones de RAID creadas.
