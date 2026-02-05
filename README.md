@@ -90,6 +90,13 @@ Para crear discos virtuales en una máquina virtual de VirtualBox, podemos segui
 4. Hacer clic en el icono de disco con un signo "+" para agregar un nuevo disco duro.
 5. Seleccionar "Crear un disco duro virtual ahora" y seguir las instrucciones para crear un disco duro de tamaño adecuado (por ejemplo, 1 GB).
 
+Para esta práctica necesitareis crear en total 11 discos virtuales adicionales, ya que cada configuración de RAID requiere un número diferente de discos:
+
+- RAID 0: 2 discos
+- RAID 1: 2 discos
+- RAID 5: 3 discos
+- RAID 6: 4 discos
+
 ### Montaje de Discos
 En Linux, los discos duros deben ser montados para poder acceder a su contenido. Podemos utilizar el comando `mount` para montar un disco en un punto de montaje específico.
 
@@ -105,11 +112,13 @@ sudo mount /dev/sdb1 /mnt/disco1 # Montar el disco /dev/sdb1 en /mnt/disco1
 Algunos discos se montan automáticamente al encender el sistema operativo, esto se configura en el archivo `/etc/fstab`, pero en esta práctica montaremos los discos manualmente.
 
 ### Formateo de Discos
-Antes de utilizar un disco duro o partición, es recomendable formatearlo con un sistema de archivos adecuado. En el caso de Linux el formato más común es ext4. Podemos utilizar el comando `mkfs` para formatear un disco o partición. Por ejemplo, para formatear un disco como ext4:
+El formato de un disco o partición determina cómo se organizan los datos. Antes de utilizar el disco duro o partición, es necesario formatearlo con un sistema de archivos adecuado. En el caso de Linux el formato más común es ext4. Podemos utilizar el comando `mkfs` para formatear un disco o partición. Por ejemplo, para formatear un disco como ext4:
 
 ```bash
 sudo mkfs.ext4 /dev/sdb1
 ```
+
+Ademas, el formato de un disco borra toda la información que contiene, por lo que es importante asegurarse de que no se formateen discos con datos importantes sin haber hecho una copia de seguridad previa.
 
 ### RAID 0
 Esta es la forma más sencilla de RAID, que distribuye los datos entre múltiples discos para mejorar el rendimiento, pero no ofrece redundancia. Si un disco falla, se pierde toda la información. 
@@ -131,6 +140,15 @@ sudo lsblk -f
 Vereis que aparece un nuevo dispositivo llamado `/dev/md0` y que este tiene aproximadamente la suma del tamaño de los dos discos. Lo que escribamos en este nuevo dispositivo se distribuirá entre los dos discos originales.
 
 Si uno de los discos falla, se perderán todos los datos del RAID 0, ya que no hay redundancia.
+
+
+Después de crear el RAID 0, lo formatearemos con un sistema de archivos y lo montaremos para verificar su funcionamiento:
+
+```bash
+sudo mkfs.ext4 /dev/md0
+sudo mkdir /mnt/raid0
+sudo mount /dev/md0 /mnt/raid0
+```
 
 
 ### RAID 1
@@ -169,6 +187,14 @@ Vereis que aparece un nuevo dispositivo llamado `/dev/md2` y que este tiene apro
 
 Si uno de los discos falla, los datos seguirán estando disponibles gracias a la paridad almacenada en los otros discos. Podremos reemplazar el disco fallido y reconstruir el RAID utilizando `mdadm`. Pero esto no lo veremos en esta práctica.
 
+Después de crear el RAID 5, lo formatearemos con un sistema de archivos y lo montaremos para verificar su funcionamiento:
+
+```bash
+sudo mkfs.ext4 /dev/md2
+sudo mkdir /mnt/raid5
+sudo mount /dev/md2 /mnt/raid5
+```
+
 ### RAID 6
 
 Para crear un RAID 6 con `mdadm`, necesitaremos al menos cuatro discos. Supongamos que tenemos `/dev/sdb`, `/dev/sdc`, `/dev/sdd` y `/dev/sde`. Para crear el RAID 6, podemos utilizar el siguiente comando:
@@ -187,8 +213,16 @@ Vereis que aparece un nuevo dispositivo llamado `/dev/md3` y que este tiene apro
 
 Si uno o dos de los discos fallan, los datos seguirán estando disponibles gracias a la doble paridad almacenada en los otros discos. Podremos reemplazar los discos fallidos y reconstruir el RAID utilizando `mdadm`. Pero esto no lo veremos en esta práctica.
 
+Después de crear el RAID 6, lo formatearemos con un sistema de archivos y lo montaremos para verificar su funcionamiento:
+
+```bash
+sudo mkfs.ext4 /dev/md3
+sudo mkdir /mnt/raid6
+sudo mount /dev/md3 /mnt/raid6
+```
 
 ### Entrega
 Debereis entregar un documento PDF con capturas de pantalla con las salidas de los siguientes comandos:
 
-- `cat proc/mdstat` después de crear cada RAID. Se deberian de ver cada una de las configuraciones de RAID creadas.
+- `cat /proc/mdstat`con todos los RAIDs creados y montados.
+- `lsblk -f` con todos los RAIDs creados y montados.
